@@ -13,7 +13,8 @@ model = st.selectbox(
 )
 
 query = st.text_input(
-    label="Query"
+    label="Query",
+    value=st.query_params.get("q", "thesaurus")
 )
 
 with st.spinner("Loading Model..."):
@@ -30,6 +31,9 @@ if query:
         st.error("Word not found... try another")
     else:
         index = key_to_index[query]
-        nns = u.get_nns_by_item(index, 100, include_distances=True)
+        nns = u.get_nns_by_item(index, 1000, include_distances=True)
         for ranking, (nn, score) in enumerate(zip(*nns)):
-            st.write(f"#{ranking} | {score}: {index_to_key[nn]}")
+            if ranking == 0:
+                continue
+            word = index_to_key[nn]
+            st.write(f"#{ranking} [{(1 - score) * 100:.1f}%]: [{word}](/?q={word})")

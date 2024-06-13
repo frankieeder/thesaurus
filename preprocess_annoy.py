@@ -7,8 +7,21 @@ import pickle
 ANNOY_PATH = Path("./annoy/").resolve()
 
 
-if __name__ == "__main__":
+def download_model(model):
     ANNOY_PATH.mkdir(exist_ok=True)
+    vectors = gensim.downloader.load(model)
+
+    with open(ANNOY_PATH / f'{model}.pkl', 'wb') as f:
+        pickle.dump(vectors.index_to_key, f)
+
+    t = AnnoyIndex(vectors.vectors.shape[1], 'angular')
+    for i, vector in tqdm(enumerate(vectors.vectors)):
+        t.add_item(i, vector)
+    t.build(10)
+    t.save(str(ANNOY_PATH / f"{model}.ann"))
+
+
+if __name__ == "__main__":
 
     models = list(gensim.downloader.info()['models'].keys())
     print(models)
@@ -16,13 +29,4 @@ if __name__ == "__main__":
     model_tqdm = tqdm(models[2:3])
     for model in model_tqdm:
         model_tqdm.set_description(f"Processing model {model}")
-        vectors = gensim.downloader.load(model)
-
-        with open(ANNOY_PATH / f'{model}.pkl', 'wb') as f:
-            pickle.dump(vectors.index_to_key, f)
-
-        t = AnnoyIndex(vectors.vectors.shape[1], 'angular')
-        for i, vector in tqdm(enumerate(vectors.vectors)):
-            t.add_item(i, vector)
-        t.build(10)
-        t.save(str(ANNOY_PATH / f"{model}.ann"))
+        download_model(model)

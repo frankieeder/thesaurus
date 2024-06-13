@@ -8,6 +8,11 @@ import numpy as np
 
 model = preprocess_annoy.ANNOY_PATH / 'fasttext-wiki-news-subwords-300.ann'
 
+if not model.exists():
+    with st.spinner("Downloading Model..."):
+        preprocess_annoy.download_model(model.stem)
+
+
 with st.spinner("Loading Model..."):
     info = gensim.downloader.info()['models'][model.stem]
     u = AnnoyIndex(info['parameters']['dimension'], 'angular')

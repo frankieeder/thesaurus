@@ -4,6 +4,7 @@ from annoy import AnnoyIndex
 import preprocess_annoy
 import pickle
 import random
+import numpy as np
 
 model = preprocess_annoy.ANNOY_PATH / 'fasttext-wiki-news-subwords-300.ann'
 
@@ -23,11 +24,18 @@ query = st.text_input(
 )
 
 if query:
-    if query not in key_to_index:
-        st.error("Word not found... try another")
-    else:
-        index = key_to_index[query]
-        nns = u.get_nns_by_item(index, 1000, include_distances=True)
+    words = query.split()
+    valid_words = []
+    for word in words:
+        if word not in key_to_index:
+            st.error(f'Word "{word}" not found... ignoring...')
+        else:
+            valid_words.append(word)
+
+    if valid_words:
+        vectors = np.array([u.get_item_vector(key_to_index[w]) for w in valid_words])
+        mean_vector = vectors.sum(axis=0)
+        nns = u.get_nns_by_vector(mean_vector, 1000, include_distances=True)
         for ranking, (nn, score) in enumerate(zip(*nns)):
             if ranking == 0:
                 continue

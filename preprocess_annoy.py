@@ -10,7 +10,10 @@ ANNOY_PATH = Path("./annoy/").resolve()
 if __name__ == "__main__":
     ANNOY_PATH.mkdir(exist_ok=True)
 
-    model_tqdm = tqdm(list(gensim.downloader.info()['models'].keys())[3:4])
+    models = list(gensim.downloader.info()['models'].keys())
+    print(models)
+
+    model_tqdm = tqdm(models[2:3])
     for model in model_tqdm:
         model_tqdm.set_description(f"Processing model {model}")
         vectors = gensim.downloader.load(model)

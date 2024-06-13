@@ -3,19 +3,9 @@ import gensim
 from annoy import AnnoyIndex
 import preprocess_annoy
 import pickle
+import random
 
-# st.write([p.stem for p in preprocess_annoy.ANNOY_PATH.iterdir()])
-
-model = st.selectbox(
-    label="Model",
-    options=[p for p in preprocess_annoy.ANNOY_PATH.iterdir() if p.suffix == '.ann'],
-    format_func=lambda p: p.stem
-)
-
-query = st.text_input(
-    label="Query",
-    value=st.query_params.get("q", "thesaurus")
-)
+model = preprocess_annoy.ANNOY_PATH / 'fasttext-wiki-news-subwords-300.ann'
 
 with st.spinner("Loading Model..."):
     info = gensim.downloader.info()['models'][model.stem]
@@ -25,6 +15,12 @@ with st.spinner("Loading Model..."):
     with open(preprocess_annoy.ANNOY_PATH / f"{model.stem}.pkl", 'rb') as f:
         index_to_key = pickle.load(f)
         key_to_index = {v:i for i, v in enumerate(index_to_key)}
+
+
+query = st.text_input(
+    label="Query",
+    value=st.query_params.get("q", "thesaurus")
+)
 
 if query:
     if query not in key_to_index:

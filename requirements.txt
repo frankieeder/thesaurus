@@ -1,0 +1,5 @@
+numpy
+pandas
+streamlit
+scipy==1.10.1  #https://stackoverflow.com/questions/78279136/importerror-cannot-import-name-triu-from-scipy-linalg-when-importing-gens
+gensim

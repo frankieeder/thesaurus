@@ -11,13 +11,14 @@ def download_model(model):
     ANNOY_PATH.mkdir(exist_ok=True)
     vectors = gensim.downloader.load(model)
 
-    with open(ANNOY_PATH / f'{model}.pkl', 'wb') as f:
-        pickle.dump(vectors.index_to_key, f)
-
     reduction_rate = 1 / 20
+    reduced_vocab_size = int(vectors.vectors.shape[0] * reduction_rate)
+
+    with open(ANNOY_PATH / f'{model}.pkl', 'wb') as f:
+        pickle.dump(vectors.index_to_key[:reduced_vocab_size], f)
 
     t = AnnoyIndex(vectors.vectors.shape[1], 'angular')
-    for i, vector in tqdm(enumerate(vectors.vectors[:int(vectors.vectors.shape[0] * reduction_rate), :])):
+    for i, vector in tqdm(enumerate(vectors.vectors[:reduced_vocab_size, :])):
         t.add_item(i, vector)
     t.build(10)
     t.save(str(ANNOY_PATH / f"{model}.ann"))
